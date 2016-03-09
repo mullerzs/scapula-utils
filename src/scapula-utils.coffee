@@ -46,6 +46,41 @@ module.exports =
 
     qs[0] + str + qs[1]
 
+  extractKeywords: (str, opts = {}) ->
+    ret = '' : []
+    str = str.toString().trim() if str?
+    if str
+      opts = '"' : '' if _.isEmpty opts
+
+      _sortFunc = (a, b) ->
+        if a[1] < b[1]
+          1
+        else if a[1] > b[1]
+          -1
+        else
+          0
+
+      markitems = _.pairs opts
+      markitems.sort _sortFunc
+
+      for markitem in markitems
+        [mark, type] = markitem
+        ret[type] ?= []
+
+        qre = @wrap '(.*?)', mark, quote: true, split: true
+        str = str.replace new RegExp(qre, 'g'), (match, capture, pos) ->
+          capture = capture.trim()
+          ret[type].push [capture, pos] if capture
+          Array(match.length + 1).join(' ')
+
+      str = str.replace /(\S+)/g, (match, capture, pos) ->
+        ret[''].push [capture, pos]
+
+      for type of ret
+        ret[type] = _.map ret[type].sort(_sortFunc).reverse(), (arr) -> arr[0]
+
+    if _.keys(ret).length == 1 then ret[''] else ret
+
   # Checkers ------------------------------------------------------------------
 
   REG_EMAIL : '[-_a-z0-9]+(\\.[-_a-z0-9]+)*@[-a-z0-9]+(\\.[-a-z0-9]+)' +

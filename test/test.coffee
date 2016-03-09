@@ -12,13 +12,13 @@ describe 'capitalize', ->
     assert.equal utils.capitalize(), undefined
 
 describe 'splitName', ->
-  res = [ 'Donnie', 'Yen' ]
+  expected = [ 'Donnie', 'Yen' ]
 
   it 'splits normal name', ->
-    assert.deepEqual utils.splitName('Donnie Yen'), res
+    assert.deepEqual utils.splitName('Donnie Yen'), expected
 
   it 'splits sort name', ->
-    assert.deepEqual utils.splitName('Yen, Donnie'), res
+    assert.deepEqual utils.splitName('Yen, Donnie'), expected
 
 describe 'joinName', ->
   it 'joins normal name parts', ->
@@ -31,6 +31,21 @@ describe 'joinName', ->
 describe 'wrap', ->
   it 'wraps string', ->
     assert.equal utils.wrap('samba', [ '>', '<' ]), '>samba<'
+
+describe 'extractKeywords', ->
+  it 'extracts keywords', ->
+    assert.deepEqual utils.extractKeywords(' pear  " sour cherry"'),
+      [ 'pear', 'sour cherry' ]
+
+  it 'extracts keywords with marks', ->
+    expected =
+      '': [ 'french fries', 'computer' ]
+      car: [ 'honda', 'mazda' ]
+      fruit: [ 'pear', 'sour cherry' ]
+
+    assert.deepEqual expected, utils.extractKeywords \
+      '{pear} "french fries" [honda] {sour cherry} [mazda] computer',
+      '{}': 'fruit', '[]': 'car', '"': ''
 
 # Checkers --------------------------------------------------------------------
 
