@@ -150,3 +150,26 @@ module.exports =
     if _.isObject(obj) && _.isObject(srcobj)
       keys = if _.isArray args[0] then args[0] else args
       _.extend obj, _.pick srcobj, keys
+
+  # Calc / conversion ---------------------------------------------------------
+
+  parseNum: (num, opts = {}) ->
+    num = if opts.int then parseInt num else parseFloat num
+    num = opts.def if isNaN num
+    num
+
+  calcRank: (prev, next, opts) ->
+    prev = @parseNum prev if prev?
+    next = @parseNum next if next?
+
+    if prev? && !next?
+      prev + 1
+    else if !prev? && next?
+      if opts?.signed
+        next - 1
+      else
+        next / 2
+    else if prev? && next?
+      (next + prev) / 2
+    else
+      1

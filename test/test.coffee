@@ -173,3 +173,30 @@ describe 'adoptProps', ->
 
     assert.deepEqual utils.adoptProps(obj1, obj2, 'banana', 'mango'),
       pear: 10, banana: 12, mango: 14
+
+# Calc / conversion -----------------------------------------------------------
+
+describe 'parseNum', ->
+  it 'parses float', ->
+    assert.equal utils.parseNum('4.5'), 4.5
+
+  it 'parses int', ->
+    assert.equal utils.parseNum('4.5', int: true), 4
+
+  it 'parses with default', ->
+    assert.equal utils.parseNum(), undefined
+    assert.equal utils.parseNum('pear', def: 0), 0
+
+describe 'calcRank', ->
+  it 'calcs default rank', ->
+    assert.equal utils.calcRank(), 1
+
+  it 'calcs basic rank', ->
+    assert.equal utils.calcRank(2, 4), 3
+
+  it 'calcs forward rank', ->
+    assert.equal utils.calcRank(5), 6
+
+  it 'calcs backward rank', ->
+    assert.equal utils.calcRank(null, 4), 2
+    assert.equal utils.calcRank(null, 0.2, signed: true), -0.8
