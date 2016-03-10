@@ -200,3 +200,28 @@ describe 'calcRank', ->
   it 'calcs backward rank', ->
     assert.equal utils.calcRank(null, 4), 2
     assert.equal utils.calcRank(null, 0.2, signed: true), -0.8
+
+describe 'num2Letters', ->
+  it 'converts num to one char', ->
+    assert.equal utils.num2Letters(2), 'B'
+
+  it 'converts num to two chars', ->
+    assert.equal utils.num2Letters(28), 'AB'
+
+  it 'returns undefined on invalid input', ->
+    assert.strictEqual utils.num2Letters('pear'), undefined
+
+  it 'returns empty string on 0 or less', ->
+    assert.equal utils.num2Letters(num), '' for num in [ 0, -2 ]
+
+describe 'maxVersion', ->
+  it 'picks the max version', ->
+    assert.equal utils.maxVersion('1.2', '1.1.0', '1.3'), '1.3'
+    assert.equal utils.maxVersion('1.2', '1.8.9', 3, '0.1'), 3
+
+describe 'isNewerVersion', ->
+  it 'determines the newer version', ->
+    assert utils.isNewerVersion '1.4', '1.2'
+    assert utils.isNewerVersion '1.2.6', '1.2.3'
+    assert !utils.isNewerVersion '1.2', '1.2'
+    assert !utils.isNewerVersion '1.2.2', '1.2.3'

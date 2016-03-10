@@ -173,3 +173,29 @@ module.exports =
       (next + prev) / 2
     else
       1
+
+  num2Letters: (num) ->
+    return unless _.isFinite num = parseInt num
+
+    ret = ''
+    while num > 0
+      mod = (num - 1) % 26
+      ret = String.fromCharCode(65 + mod) + ret
+      num = parseInt (num - mod) / 26
+
+    ret
+
+  maxVersion: ->
+    args = [].slice.call arguments
+    nums = 3 # semVer
+
+    _.max args, (arg) ->
+      arg = arg.toString().split '.'
+      arg.splice nums
+      _.reduce arg, (memo, val, idx) ->
+        val = if _.isFinite(val) then parseInt(val) else 0
+        memo + (Math.pow(10, (nums - idx) * 3) * val)
+      , 0
+
+  isNewerVersion: (v1, v2) ->
+    v1 isnt v2 && @maxVersion(v1, v2) is v1
