@@ -1,6 +1,6 @@
 _ = require 'underscore'
 
-module.exports =
+utils =
   # String --------------------------------------------------------------------
 
   capitalize: (str) ->
@@ -199,3 +199,60 @@ module.exports =
 
   isNewerVersion: (v1, v2) ->
     v1 isnt v2 && @maxVersion(v1, v2) is v1
+
+  # Misc ----------------------------------------------------------------------
+
+  _sort: (a, b, opts = {}) ->
+    ret = if b? && (!a? || a < b)
+      -1
+    else if a? && (!b? || a > b)
+      1
+
+    ret *= -1 if ret && opts.desc
+    ret
+
+  sort: (a, b, props, opts) ->
+    if !_.isArray(props) && _.isObject props
+      opts = props
+      props = null
+    else
+      opts ?= {}
+
+    ret = 0
+
+    if props
+      props = [ props ] unless _.isArray props
+      for prop in props
+        cmp = []
+        pname = if _.isObject prop then prop.name else prop
+        popts = if _.isObject prop then _.omit prop, 'name' else {}
+        _.defaults popts, opts, attr: true
+        for obj in [ a, b ]
+          if _.isArray pname
+            for altpname in pname
+              tmp = utils.getProp obj, altpname, popts
+              break if tmp?
+          else
+            tmp = utils.getProp obj, pname, popts
+
+          if popts.natural && _.isString tmp
+            pad = popts.pad ? 10
+            tmp = tmp
+              .replace /(\d+)/g, Array(pad + 1).join('0') + '$1'
+              .replace new RegExp("0*(\\d\{#{pad},\})", 'g'), '$1'
+              .replace /@/g, ' '
+              .toLowerCase()
+
+          cmp.push tmp
+
+        ret = @_sort.apply @, cmp.concat(popts)
+        break if ret
+    else
+      ret = @_sort a, b, opts
+
+    ret
+
+for fname, func of utils
+  utils[fname] = func.bind utils if _.isFunction func
+
+module.exports = utils

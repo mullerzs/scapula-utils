@@ -225,3 +225,55 @@ describe 'isNewerVersion', ->
     assert utils.isNewerVersion '1.2.6', '1.2.3'
     assert !utils.isNewerVersion '1.2', '1.2'
     assert !utils.isNewerVersion '1.2.2', '1.2.3'
+
+describe 'sort', ->
+  beforeEach ->
+    @nums = [ 5, 3, 2, 9 ]
+    @strs = [ 'mango', 'carrot', 'pear', 'banana' ]
+    @props = [
+      name  : 'carrot'
+      type  : 'vegetable'
+      value : 0
+    ,
+      name  : 'mango 2'
+      type  : 'fruit'
+      value : 2
+    ,
+      name  : 'banana'
+      type  : 'fruit'
+    ,
+      name  : 'mango 10'
+      type  : 'fruit'
+      value : 4
+    ,
+      name  : 'carrot'
+      type  : 'vegetable'
+      value : 3
+    ]
+    prop.id = i for prop, i in @props
+
+  it 'sorts nums', ->
+    assert.deepEqual @nums.sort(utils.sort), [ 2, 3, 5, 9 ]
+
+  it 'sorts nums desc', ->
+    assert.deepEqual \
+      @nums.sort( (a, b) -> utils.sort a, b, desc: true),
+      [ 9, 5, 3, 2 ]
+
+  it 'sorts strings', ->
+    assert.deepEqual @strs.sort(utils.sort),
+      [ 'banana', 'carrot', 'mango', 'pear' ]
+
+  it 'sorts collections', ->
+    assert.deepEqual \
+      _.pluck(@props.sort( (a, b) ->
+        utils.sort a, b, [
+          'type'
+        ,
+          name    : 'name'
+          natural : true
+        ,
+          name : 'value'
+          desc : true
+        ]), 'id'),
+      [ 2, 1, 3, 4, 0 ]
