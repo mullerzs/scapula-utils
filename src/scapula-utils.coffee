@@ -81,6 +81,39 @@ utils =
 
     if _.keys(ret).length == 1 then ret[''] else ret
 
+  # URL -----------------------------------------------------------------------
+
+  addUrlParams: (url, params, opts = {}) ->
+    if url? && !_.isEmpty params
+      url += (if url.match /\?/ then '&' else '?') +
+        _.map(_.pairs(params), (p) ->
+          p[1] = encodeURIComponent p[1] if opts.encode
+          p.join '='
+        ).join '&'
+
+    url
+
+  getUrlParams: (url) ->
+    paramstr = if url?
+      url.toString().match(/\?(.+)$/)?[1]
+    else
+      window?.location.search[1..]
+
+    if paramstr
+      _.object _.compact _.map paramstr.split('&'), (item) ->
+        item?.split '='
+
+  shareUrlSocial: (url, prov) ->
+    if url?
+      base = if prov is 'FB'
+        'https://www.facebook.com/sharer/sharer.php?u='
+      else
+        'https://plus.google.com/share?url='
+
+      url = base + encodeURIComponent url
+
+    url
+
   # Checkers ------------------------------------------------------------------
 
   REG_EMAIL : '[-_a-z0-9]+(\\.[-_a-z0-9]+)*@[-a-z0-9]+(\\.[-a-z0-9]+)' +
@@ -157,6 +190,20 @@ utils =
     num = if opts.int then parseInt num else parseFloat num
     num = opts.def if isNaN num
     num
+
+  limitNum: (val, min, max) ->
+    if _.isFinite val = parseFloat val
+      limits = if _.isArray min
+        min: min[0], max: min[1]
+      else if _.isObject min
+        min
+      else
+        min: min, max: max
+
+      for op, limit of { min: 'max', max: 'min' }
+        val = _[op] [ v, val ] if _.isFinite v = parseFloat limits[limit]
+
+    val
 
   calcRank: (prev, next, opts) ->
     prev = @parseNum prev if prev?

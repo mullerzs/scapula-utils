@@ -46,6 +46,45 @@ describe 'extractKeywords', ->
     assert.deepEqual expected, utils.extractKeywords \
       '{pear} "french fries" [honda] {sour cherry} [mazda] computer',
       '{}': 'fruit', '[]': 'car', '"': ''
+# URL -------------------------------------------------------------------------
+
+describe 'addUrlParams', ->
+  beforeEach ->
+    @url = 'https://locahost'
+
+  it 'adds params with encoding', ->
+    assert.equal \
+      utils.addUrlParams(@url,
+        { fruits: 'pear cherry', banana: 2 }, encode: true),
+      @url + "?fruits=#{encodeURIComponent('pear cherry')}&banana=2"
+
+  it 'adds params without encoding', ->
+    assert.equal \
+      utils.addUrlParams(@url, fruits: 'pear cherry', banana: 2),
+      @url + '?fruits=pear cherry&banana=2'
+
+  it 'adds params after an existing one', ->
+    assert.equal \
+      utils.addUrlParams(@url + '?car=1', fruits: 'pear cherry', banana: 2),
+      @url + '?car=1&fruits=pear cherry&banana=2'
+
+  it 'handles invalid input', ->
+    assert.equal utils.addUrlParams(), undefined
+
+describe 'getUrlParams', ->
+  it 'gets params from url', ->
+    assert.deepEqual \
+      utils.getUrlParams('https://localhost?pear=sweet&cherry=sour'),
+      { pear: 'sweet', cherry: 'sour' }
+
+describe 'shareUrlSocial', ->
+  it 'constructs share url', ->
+    url = 'https://localhost'
+    for k, v of { facebook: 'FB', google: 'G' }
+      assert utils.shareUrlSocial(url, v).match new RegExp "#{k}.+localhost"
+
+  it 'handles invalid input', ->
+    assert.equal utils.shareUrlSocial(), undefined
 
 # Checkers --------------------------------------------------------------------
 
@@ -186,6 +225,25 @@ describe 'parseNum', ->
   it 'parses with default', ->
     assert.equal utils.parseNum(), undefined
     assert.equal utils.parseNum('pear', def: 0), 0
+
+describe 'limitNum', ->
+  it 'limits number with all param passing methods', ->
+    for p in [ { min: 200, max: 300 }, { min: 200 }, { max: 300 }, {} ]
+      for num in [ 100, 250, 350 ]
+        expected = if num < p.min
+          p.min
+        else if num > p.max
+          p.max
+        else
+          num
+
+        assert.equal utils.limitNum(num, p.min, p.max), expected
+        assert.equal utils.limitNum(num, [ p.min, p.max ]), expected
+        assert.equal utils.limitNum(num, p), expected
+
+  it 'handles invalid input', ->
+    assert isNaN utils.limitNum()
+    assert isNaN utils.limitNum 'x'
 
 describe 'calcRank', ->
   it 'calcs default rank', ->
