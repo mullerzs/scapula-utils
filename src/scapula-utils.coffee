@@ -114,21 +114,6 @@ utils =
 
     url
 
-  formatFileSize: (size, opts = {}) ->
-    if _.isFinite size = parseFloat size
-      unit = if opts.unit in [ 'k', 'M', 'G' ]
-        opts.unit
-      else
-        'M'
-
-      size /= 1024
-      if unit isnt 'k'
-        size /= 1024 ** (if unit is 'G' then 2 else 1)
-
-      @roundTo(size, opts.prec ? 2) + unit
-    else
-      opts.na ? 'NA'
-
   # Checkers ------------------------------------------------------------------
 
   REG_EMAIL : '[-_a-z0-9]+(\\.[-_a-z0-9]+)*@[-a-z0-9]+(\\.[-a-z0-9]+)' +
@@ -280,6 +265,21 @@ utils =
 
   isNewerVersion: (v1, v2) ->
     v1 isnt v2 && @maxVersion(v1, v2) is v1
+
+  formatFileSize: (size, opts = {}) ->
+    if _.isFinite size = parseFloat size
+      unit = if opts.unit in [ 'k', 'M', 'G' ]
+        opts.unit
+      else
+        'M'
+
+      size /= 1024
+      if unit isnt 'k'
+        size /= 1024 ** (if unit is 'G' then 2 else 1)
+
+      @roundTo(size, opts.prec ? 2) + unit
+    else
+      opts.na ? 'NA'
 
   # Misc ----------------------------------------------------------------------
 

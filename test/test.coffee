@@ -46,6 +46,7 @@ describe 'extractKeywords', ->
     assert.deepEqual expected, utils.extractKeywords \
       '{pear} "french fries" [honda] {sour cherry} [mazda] computer',
       '{}': 'fruit', '[]': 'car', '"': ''
+
 # URL -------------------------------------------------------------------------
 
 describe 'addUrlParams', ->
@@ -85,22 +86,6 @@ describe 'shareUrlSocial', ->
 
   it 'handles invalid input', ->
     assert.equal utils.shareUrlSocial(), undefined
-
-describe 'formatFileSize', ->
-  it 'formats size with units & decimal digits', ->
-    sizes =
-      '16k'    : [ 16384, unit: 'k' ]
-      '0.02M'  : [ 16384 ]
-      '117.7M' : [ 123456789, prec: 1 ]
-      '0.115G' : [ 123456789, unit: 'G', prec: 3 ]
-
-    for expected, args of sizes
-      assert.equal utils.formatFileSize.apply(utils, args), expected
-
-  it 'handles invalid input', ->
-    assert.equal utils.formatFileSize(), 'NA'
-    assert.equal utils.formatFileSize('X'), 'NA'
-    assert.equal utils.formatFileSize(null, na: '-'), '-'
 
 # Checkers --------------------------------------------------------------------
 
@@ -349,6 +334,24 @@ describe 'isNewerVersion', ->
     assert utils.isNewerVersion '1.2.6', '1.2.3'
     assert !utils.isNewerVersion '1.2', '1.2'
     assert !utils.isNewerVersion '1.2.2', '1.2.3'
+
+describe 'formatFileSize', ->
+  it 'formats size with units & decimal digits', ->
+    sizes =
+      '16k'    : [ 16384, unit: 'k' ]
+      '0.02M'  : [ 16384 ]
+      '117.7M' : [ 123456789, prec: 1 ]
+      '0.115G' : [ 123456789, unit: 'G', prec: 3 ]
+
+    for expected, args of sizes
+      assert.equal utils.formatFileSize.apply(utils, args), expected
+
+  it 'handles invalid input', ->
+    assert.equal utils.formatFileSize(), 'NA'
+    assert.equal utils.formatFileSize('X'), 'NA'
+    assert.equal utils.formatFileSize(null, na: '-'), '-'
+
+# Misc ------------------------------------------------------------------------
 
 describe 'sort', ->
   beforeEach ->
