@@ -251,6 +251,10 @@ utils =
     else
       1
 
+  prec2Step: (prec = 0) ->
+    if _.isFinite prec = parseInt prec
+      1 / (10 ** prec)
+
   num2Letters: (num) ->
     return unless _.isFinite num = parseInt num
 

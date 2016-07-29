@@ -312,6 +312,19 @@ describe 'calcRank', ->
     assert.equal utils.calcRank(null, 4), 2
     assert.equal utils.calcRank(null, 0.2, signed: true), -0.8
 
+describe 'prec2Step', ->
+  it 'translates prec to step', ->
+    vals = [
+      [ null, 1 ]
+      [ 0, 1 ]
+      [ 1, 0.1 ]
+      [ 2, 0.01 ]
+      [ -1, 10 ]
+      [ -2, 100 ]
+    ]
+
+    assert.equal utils.prec2Step(v[0]), v[1] for v in vals
+
 describe 'num2Letters', ->
   it 'converts num to one char', ->
     assert.equal utils.num2Letters(2), 'B'
