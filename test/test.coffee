@@ -86,6 +86,22 @@ describe 'shareUrlSocial', ->
   it 'handles invalid input', ->
     assert.equal utils.shareUrlSocial(), undefined
 
+describe 'formatFileSize', ->
+  it 'formats size with units & decimal digits', ->
+    sizes =
+      '16k'    : [ 16384, unit: 'k' ]
+      '0.02M'  : [ 16384 ]
+      '117.7M' : [ 123456789, prec: 1 ]
+      '0.115G' : [ 123456789, unit: 'G', prec: 3 ]
+
+    for expected, args of sizes
+      assert.equal utils.formatFileSize.apply(utils, args), expected
+
+  it 'handles invalid input', ->
+    assert.equal utils.formatFileSize(), 'NA'
+    assert.equal utils.formatFileSize('X'), 'NA'
+    assert.equal utils.formatFileSize(null, na: '-'), '-'
+
 # Checkers --------------------------------------------------------------------
 
 describe 'chkEmail', ->
