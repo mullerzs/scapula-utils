@@ -205,6 +205,14 @@ utils =
 
     val
 
+  roundTo: (val, prec) ->
+    if _.isFinite val = parseFloat val
+      prec = if _.isFinite(prec) then prec else 0
+      if prec < 0
+        parseFloat((val * 10 ** prec).toFixed()) * 10 ** Math.abs prec
+      else
+        parseFloat val.toFixed prec
+
   calcRank: (prev, next, opts) ->
     prev = @parseNum prev if prev?
     next = @parseNum next if next?

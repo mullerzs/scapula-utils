@@ -245,6 +245,33 @@ describe 'limitNum', ->
     assert isNaN utils.limitNum()
     assert isNaN utils.limitNum 'x'
 
+describe 'roundTo', ->
+  it 'rounds with positive precision', ->
+    nums = [
+      [ 1.23, 1, 1.2, 1.23, 1.23 ]
+      [ 1.567, 2, 1.6, 1.57, 1.567 ]
+    ]
+
+    for n in nums
+      num = n.shift()
+      for rounded, i in n
+        assert.equal utils.roundTo(num, i), rounded
+
+  it 'rounds with negative precision', ->
+    nums = [
+      [ 16.4, 16, 20, 0, 0 ]
+      [ 724.1, 724, 720, 700, 1000 ]
+    ]
+
+    for n in nums
+      num = n.shift()
+      for rounded, i in n
+        assert.equal utils.roundTo(num, i * -1), rounded
+
+  it 'handles non-number input', ->
+    assert.equal utils.roundTo('12.6'), 13
+    assert.equal utils.roundTo(), undefined
+
 describe 'calcRank', ->
   it 'calcs default rank', ->
     assert.equal utils.calcRank(), 1
