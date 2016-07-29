@@ -213,6 +213,13 @@ utils =
       else
         parseFloat val.toFixed prec
 
+  getFrac: (num, len) ->
+    frac = num?.toString().match(/\.\d+$/)?[0]
+    if frac
+      len = frac.length unless _.isFinite len
+      frac = frac.substr 0, len + 1
+    frac
+
   calcRank: (prev, next, opts) ->
     prev = @parseNum prev if prev?
     next = @parseNum next if next?

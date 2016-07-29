@@ -272,6 +272,16 @@ describe 'roundTo', ->
     assert.equal utils.roundTo('12.6'), 13
     assert.equal utils.roundTo(), undefined
 
+describe 'getFrac', ->
+  it 'gets fractional part of num', ->
+    assert.equal utils.getFrac(1.234), '.234'
+    assert.equal utils.getFrac('3.14'), '.14'
+    assert.equal utils.getFrac('3.1416', 2), '.14'
+
+  it 'handles non-fractional input', ->
+    assert.equal utils.getFrac(1), undefined
+    assert.equal utils.getFrac(), undefined
+
 describe 'calcRank', ->
   it 'calcs default rank', ->
     assert.equal utils.calcRank(), 1
