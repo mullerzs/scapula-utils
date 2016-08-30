@@ -106,6 +106,14 @@ utils =
        .replace /<br\s*\/?>/g, "\n"
        .trim()
 
+  quoteMeta: (str) ->
+    return str unless str?
+    str.toString().replace /([\.\\\+\*\?\[\^\]\$\(\)\-\{\}\|])/g, '\\$1'
+
+  startMatch: (str, kw) ->
+    return null unless str? && kw?
+    str.toString().trim().match new RegExp '^' + @quoteMeta(kw), 'i'
+
   # URL -----------------------------------------------------------------------
 
   addUrlParams: (url, params, opts = {}) ->

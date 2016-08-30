@@ -56,15 +56,50 @@ describe 'html', ->
     it 'encodes html', ->
       assert.equal utils.encodeHtml(@testDecoded), @testEncoded
 
-    it 'handles undefined input', ->
+    it 'handles invalid input', ->
       assert.equal utils.encodeHtml(), undefined
 
   describe 'decodeHtml', ->
     it 'decodes html', ->
       assert.equal utils.decodeHtml(@testEncoded), @testDecoded.trim()
 
-    it 'handles undefined input', ->
+    it 'handles invalid input', ->
       assert.equal utils.decodeHtml(), undefined
+
+describe 'quoteMeta', ->
+  it 'quotes meta chars', ->
+    assert.equal utils.quoteMeta('abc123.\\+*?[^]$()-{}|'),
+      'abc123\\.\\\\\\+\\*\\?\\[\\^\\]\\$\\(\\)\\-\\{\\}\\|'
+
+  it 'handles invalid input', ->
+    assert.equal utils.quoteMeta(), undefined
+
+describe 'startMatch', ->
+  it 'matches starting chars', ->
+    samples = [
+      [ 'Honda', 'ho' ]
+      [ 'sour cherry', 'so' ]
+      [ ' pear', 'pea' ]
+      [ 'baNanA', 'banana' ]
+      [ 'x', '' ]
+    ]
+
+    for sample in samples
+      assert utils.startMatch sample[0], sample[1]
+
+    inv_samples = [
+      [ 'Honda', 'do' ]
+      [ 'sour cherry', 'ch' ]
+      [ 'pear', 'ear' ]
+    ]
+
+    for inv_sample in inv_samples
+      assert !utils.startMatch inv_sample[0], inv_sample[1]
+
+  it 'handles invalid input', ->
+    assert !utils.startMatch()
+    assert !utils.startMatch 'honda'
+    assert !utils.startMatch null, 'ho'
 
 # URL -------------------------------------------------------------------------
 
