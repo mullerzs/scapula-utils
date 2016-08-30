@@ -81,6 +81,31 @@ utils =
 
     if _.keys(ret).length == 1 then ret[''] else ret
 
+  encodeHtml: (str) ->
+    return str unless str?
+    str.toString()
+       .replace /&/g, '&amp;'
+       .replace /</g, '&lt;'
+       .replace />/g, '&gt;'
+       .replace /\n$/, '<br>&nbsp;'
+       .replace /\n/g, '<br>'
+       .replace /\s{2,}/g, (space) ->
+         res = ''
+         res += '&nbsp;' for num in [ 1 .. space.length ]
+         res
+
+  decodeHtml: (str) ->
+    return str unless str?
+    str.toString()
+       .replace /\s+/g, ' '
+       .replace /&lt;/g, '<'
+       .replace /&gt;/g, '>'
+       .replace /&nbsp;/g, ' '
+       .replace /&amp;/g, '&'
+       .replace /<br\s*\/?>$/, ''
+       .replace /<br\s*\/?>/g, "\n"
+       .trim()
+
   # URL -----------------------------------------------------------------------
 
   addUrlParams: (url, params, opts = {}) ->

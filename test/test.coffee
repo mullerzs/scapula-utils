@@ -47,6 +47,25 @@ describe 'extractKeywords', ->
       '{pear} "french fries" [honda] {sour cherry} [mazda] computer',
       '{}': 'fruit', '[]': 'car', '"': ''
 
+describe 'html', ->
+  beforeEach ->
+    @testEncoded = '&amp;&lt;tag&gt;<br>&nbsp;&nbsp;&amp;123&gt;&lt;<br>&nbsp;'
+    @testDecoded = "&<tag>\n  &123><\n"
+
+  describe 'encodeHtml', ->
+    it 'encodes html', ->
+      assert.equal utils.encodeHtml(@testDecoded), @testEncoded
+
+    it 'handles undefined input', ->
+      assert.equal utils.encodeHtml(), undefined
+
+  describe 'decodeHtml', ->
+    it 'decodes html', ->
+      assert.equal utils.decodeHtml(@testEncoded), @testDecoded.trim()
+
+    it 'handles undefined input', ->
+      assert.equal utils.decodeHtml(), undefined
+
 # URL -------------------------------------------------------------------------
 
 describe 'addUrlParams', ->
