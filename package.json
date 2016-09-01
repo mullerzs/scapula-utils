@@ -1,6 +1,6 @@
 {
   "name": "scapula-utils",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Generic utility function library",
   "main": "lib/scapula-utils.js",
   "repository": {
