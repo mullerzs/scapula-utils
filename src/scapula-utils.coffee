@@ -114,39 +114,6 @@ utils =
     return null unless str? && kw?
     str.toString().trim().match new RegExp '^' + @quoteMeta(kw), 'i'
 
-  # URL -----------------------------------------------------------------------
-
-  addUrlParams: (url, params, opts = {}) ->
-    if url? && !_.isEmpty params
-      url += (if url.match /\?/ then '&' else '?') +
-        _.map(_.pairs(params), (p) ->
-          p[1] = encodeURIComponent p[1] if opts.encode
-          p.join '='
-        ).join '&'
-
-    url
-
-  getUrlParams: (url) ->
-    paramstr = if url?
-      url.toString().match(/\?(.+)$/)?[1]
-    else
-      window?.location.search[1..]
-
-    if paramstr
-      _.object _.compact _.map paramstr.split('&'), (item) ->
-        item?.split '='
-
-  shareUrlSocial: (url, prov) ->
-    if url?
-      base = if prov is 'FB'
-        'https://www.facebook.com/sharer/sharer.php?u='
-      else
-        'https://plus.google.com/share?url='
-
-      url = base + encodeURIComponent url
-
-    url
-
   # Checkers ------------------------------------------------------------------
 
   REG_EMAIL : '[-_a-z0-9]+(\\.[-_a-z0-9]+)*@[-a-z0-9]+(\\.[-a-z0-9]+)' +
@@ -365,6 +332,88 @@ utils =
       ret = @_sort a, b, opts
 
     ret
+
+  # URL / Link / Client -------------------------------------------------------
+
+  addUrlParams: (url, params, opts = {}) ->
+    if url? && !_.isEmpty params
+      url += (if url.match /\?/ then '&' else '?') +
+        _.map(_.pairs(params), (p) ->
+          p[1] = encodeURIComponent p[1] if opts.encode
+          p.join '='
+        ).join '&'
+
+    url
+
+  getUrlParams: (url) ->
+    paramstr = if url?
+      url.toString().match(/\?(.+)$/)?[1]
+    else
+      window?.location.search[1..]
+
+    if paramstr
+      _.object _.compact _.map paramstr.split('&'), (item) ->
+        item?.split '='
+
+  shareUrlSocial: (url, prov) ->
+    if url?
+      base = if prov is 'FB'
+        'https://www.facebook.com/sharer/sharer.php?u='
+      else
+        'https://plus.google.com/share?url='
+
+      url = base + encodeURIComponent url
+
+    url
+
+  videoUrl: (vid, opts = {}) ->
+    return unless vid
+    prot = opts.protocol || window?.location.protocol || 'https'
+    prot += ':' unless prot.match /:$/
+
+    url = if !opts.type || opts.type is 'youtube'
+      if opts.iframe
+        'www.youtube-nocookie.com/embed/'
+      else
+        'www.youtube.com/watch?v='
+    else if opts.type is 'vimeo'
+      if opts.iframe
+        'player.vimeo.com/video/'
+      else
+        'vimeo.com/'
+
+    "#{prot}//#{url}#{vid}" if url
+
+  parseVideoUrl: (url) ->
+    url = '' unless _.isString url
+    if url.match /(?:youtube\.com\/watch.*[?&]v=|youtu\.be\/)([^&]+)/
+      id: RegExp.$1, type: 'youtube'
+    else if url.match /vimeo\.com\/(.+)$/
+      id: RegExp.$1, type: 'vimeo'
+
+  videoIframe: (vid, opts) ->
+    opts = _.extend width: 320, height: 240, opts
+    if (src = @videoUrl vid, _.extend iframe: true, opts)
+      "<iframe frameborder=\"0\"
+        width=\"#{opts.width}\"
+        height=\"#{opts.height}\"
+        src=\"#{src}\" allowfullscreen></iframe>"
+
+  link: (link, opts = {}) ->
+    return link unless link?
+    text = utils.encodeHtml \
+      opts.text || link.toString().replace /^https?:\/\//, ''
+    ret = "<a href=\"#{link}\""
+    ret += " target=\"#{opts.target}\"" if opts.target
+    ret + ">#{text}</a>"
+
+  mailtoLink: (recip, opts) ->
+    return recip unless recip?
+    lnk = "mailto:#{recip}"
+    if _.isEmpty opts
+      lnk
+    else
+      @addUrlParams lnk, opts, encode: true
 
 for fname, func of utils
   utils[fname] = func.bind utils if _.isFunction func

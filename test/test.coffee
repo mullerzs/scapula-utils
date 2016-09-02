@@ -101,46 +101,6 @@ describe 'startMatch', ->
     assert !utils.startMatch 'honda'
     assert !utils.startMatch null, 'ho'
 
-# URL -------------------------------------------------------------------------
-
-describe 'addUrlParams', ->
-  beforeEach ->
-    @url = 'https://locahost'
-
-  it 'adds params with encoding', ->
-    assert.equal \
-      utils.addUrlParams(@url,
-        { fruits: 'pear cherry', banana: 2 }, encode: true),
-      @url + "?fruits=#{encodeURIComponent('pear cherry')}&banana=2"
-
-  it 'adds params without encoding', ->
-    assert.equal \
-      utils.addUrlParams(@url, fruits: 'pear cherry', banana: 2),
-      @url + '?fruits=pear cherry&banana=2'
-
-  it 'adds params after an existing one', ->
-    assert.equal \
-      utils.addUrlParams(@url + '?car=1', fruits: 'pear cherry', banana: 2),
-      @url + '?car=1&fruits=pear cherry&banana=2'
-
-  it 'handles invalid input', ->
-    assert.equal utils.addUrlParams(), undefined
-
-describe 'getUrlParams', ->
-  it 'gets params from url', ->
-    assert.deepEqual \
-      utils.getUrlParams('https://localhost?pear=sweet&cherry=sour'),
-      { pear: 'sweet', cherry: 'sour' }
-
-describe 'shareUrlSocial', ->
-  it 'constructs share url', ->
-    url = 'https://localhost'
-    for k, v of { facebook: 'FB', google: 'G' }
-      assert utils.shareUrlSocial(url, v).match new RegExp "#{k}.+localhost"
-
-  it 'handles invalid input', ->
-    assert.equal utils.shareUrlSocial(), undefined
-
 # Checkers --------------------------------------------------------------------
 
 describe 'chkEmail', ->
@@ -458,3 +418,127 @@ describe 'sort', ->
           desc : true
         ]), 'id'),
       [ 2, 1, 3, 4, 0 ]
+
+# Link / URL / Client ---------------------------------------------------------
+
+describe 'addUrlParams', ->
+  beforeEach ->
+    @url = 'https://locahost'
+
+  it 'adds params with encoding', ->
+    assert.equal \
+      utils.addUrlParams(@url,
+        { fruits: 'pear cherry', banana: 2 }, encode: true),
+      @url + "?fruits=#{encodeURIComponent('pear cherry')}&banana=2"
+
+  it 'adds params without encoding', ->
+    assert.equal \
+      utils.addUrlParams(@url, fruits: 'pear cherry', banana: 2),
+      @url + '?fruits=pear cherry&banana=2'
+
+  it 'adds params after an existing one', ->
+    assert.equal \
+      utils.addUrlParams(@url + '?car=1', fruits: 'pear cherry', banana: 2),
+      @url + '?car=1&fruits=pear cherry&banana=2'
+
+  it 'handles invalid input', ->
+    assert.equal utils.addUrlParams(), undefined
+
+describe 'getUrlParams', ->
+  it 'gets params from url', ->
+    assert.deepEqual \
+      utils.getUrlParams('https://localhost?pear=sweet&cherry=sour'),
+      { pear: 'sweet', cherry: 'sour' }
+
+describe 'shareUrlSocial', ->
+  it 'constructs share url', ->
+    url = 'https://localhost'
+    for k, v of { facebook: 'FB', google: 'G' }
+      assert utils.shareUrlSocial(url, v).match new RegExp "#{k}.+localhost"
+
+  it 'handles invalid input', ->
+    assert.equal utils.shareUrlSocial(), undefined
+
+describe 'videoUrl', ->
+  it 'constructs video url', ->
+    assert utils.videoUrl('abc').match /youtube\.com.+abc$/
+    assert utils.videoUrl('xyz', type: 'vimeo').match /vimeo\.com.+xyz$/
+
+  it 'constructs iframe video url', ->
+    assert utils.videoUrl('abc', iframe: true).match /youtube\-nocookie/
+    assert \
+      utils.videoUrl('xyz', iframe: true, type: 'vimeo').match /player\.vimeo/
+
+  it 'handles invalid input', ->
+    assert.equal utils.videoUrl(), undefined
+
+describe 'parseVideoUrl', ->
+  it 'parses video url', ->
+    for url in [
+      'https://www.youtube.com/watch?v=Pmmh69G-pt0'
+      'youtu.be/Pmmh69G-pt0'
+    ]
+      assert.deepEqual utils.parseVideoUrl(url),
+        id: 'Pmmh69G-pt0', type: 'youtube'
+
+    assert.deepEqual \
+      utils.parseVideoUrl('https://vimeo.com/73604196'),
+      id: '73604196', type: 'vimeo'
+
+  it 'handles invalid input', ->
+    assert.equal utils.parseVideoUrl(), undefined
+    assert.equal utils.parseVideoUrl('abc'), undefined
+
+describe 'videoIframe', ->
+  it 'creates iframe tag', ->
+    for type, vid of { youtube: 'Pmmh69G-pt0', vimeo: '73604196' }
+      iframe = utils.videoIframe vid, type: type
+      res = [ '<iframe.+></iframe>' ].concat _.map [
+        'width="320"'
+        'height="240"'
+        'frameborder="0"'
+        "src=\"#{utils.videoUrl vid, type: type, iframe: true}\""
+      ], (s) -> utils.quoteMeta s
+
+      for re in res
+        assert iframe.match new RegExp re
+
+  it 'handles invalid input', ->
+    assert.equal utils.videoIframe(), undefined
+
+describe 'link', ->
+  it 'linkifies', ->
+    samples = [
+      prot: 'http://'
+      link: 'localhost/test'
+    ,
+      prot: 'https://'
+      link: 'honda.jp/accord'
+    ,
+      prot: '//'
+      link: 'fenimore.eugene.be/triboulet'
+      target: '_blank'
+      text: 'Albert Vandenbosh'
+    ]
+
+    samples.forEach (s) ->
+      href = s.prot + s.link
+      text = s.text ? s.link
+      target = if s.target then " target=\"#{s.target}\"" else ''
+      opts = _.pick s, 'target', 'text'
+      assert.equal \
+        utils.link(s.prot + s.link, _.pick s, 'target', 'text'),
+        "<a href=\"#{href}\"#{target}>#{text}</a>"
+
+  it 'handles invalid input', ->
+    assert.equal utils.link(), undefined
+
+describe 'mailtoLink', ->
+  it 'mailto linkifies', ->
+    assert.equal utils.mailtoLink('honda@accord.jp'),
+      'mailto:honda@accord.jp'
+    assert.equal utils.mailtoLink('fenimore', ninja: 'japo', gibert: 1),
+      'mailto:fenimore?ninja=japo&gibert=1'
+
+  it 'handles invalid input', ->
+    assert.equal utils.mailtoLink(), undefined
