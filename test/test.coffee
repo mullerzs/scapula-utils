@@ -542,3 +542,47 @@ describe 'mailtoLink', ->
 
   it 'handles invalid input', ->
     assert.equal utils.mailtoLink(), undefined
+
+describe 'browser', ->
+  browsers = [
+    [ 'chrome', 53,
+      'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like
+       Gecko) Chrome/53.0.2785.143 Safari/537.36' ]
+    [ 'safari', 9,
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/601.7.8
+       (KHTML, like Gecko) Version/9.1.3 Safari/601.7.8' ]
+    [ 'ie', 11,
+      'Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; .NET4.0C; .NET4.0E;
+       .NET CLR 2.0.50727; .NET CLR 3.0.30729; .NET CLR 3.5.30729; rv:11.0) like
+       Gecko' ]
+    [ 'edge', 14,
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like
+       Gecko) Chrome/51.0.2704.79 Safari/537.36 Edge/14.14393' ]
+    [ 'firefox', 49,
+      'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:49.0) Gecko/20100101
+       Firefox/49.0' ]
+  ]
+
+  browsers.forEach (b) ->
+    [ browser, version, ua ] = b
+
+    it "#{browser} -> true", ->
+      assert utils.browser browser, version, ua
+      assert utils.browser browser, "#{version}-", ua
+      assert utils.browser browser, "#{version}+", ua
+      assert utils.browser browser, undefined, ua
+
+    it "#{browser} -> false versions", ->
+      assert !utils.browser browser, version - 1, ua
+      assert !utils.browser browser, version + 1, ua
+      assert !utils.browser browser, "#{version + 1}+", ua
+      assert !utils.browser browser, "#{version - 1}-", ua
+
+    it "#{browser} -> false browsers", ->
+      others = _.reject browsers, (_b) ->
+        if browser is 'edge'
+          _b[0] in [ 'chrome', 'safari', browser ]
+        else
+          _b[0] is browser
+
+      assert !utils.browser other[0], undefined, ua for other in others

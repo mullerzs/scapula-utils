@@ -415,6 +415,34 @@ utils =
     else
       @addUrlParams lnk, opts, encode: true
 
+  browser: (type, ver, ua = navigator.userAgent || '') ->
+    ret = switch type?.toLowerCase()
+      when 'ie'
+        ua.match(/trident.+rv:(\d+)/i) || ua.match(/msie\s+(\d+)/i)
+      when 'edge'
+        ua.match /edge\/(\d+)/i
+      when 'firefox'
+        ua.match /firefox\/(\d+)/i
+      when 'chrome'
+        ua.match /(?:crios|chrome)\/(\d+)/i
+      when 'safari'
+        ua.match /version\/(\d+).+safari/i
+
+    if ret
+      ret = parseInt ret[1]
+      verChk = ver?.toString().match(/^(\d+)([+-]?)$/)
+      if verChk
+        num = parseInt verChk[1]
+        rel = verChk[2]
+
+        ret = if rel
+          if rel is '+' then ret >= num else ret <= num
+        else
+          ret == num
+
+    ret
+
+
 for fname, func of utils
   utils[fname] = func.bind utils if _.isFunction func
 
