@@ -370,6 +370,7 @@ describe 'formatFileSize', ->
 describe 'sort', ->
   beforeEach ->
     @nums = [ 5, 3, 2, 9 ]
+    @numsNull = [ 5, 3, null, 2, null, 9 ]
     @strs = [ 'mango', 'carrot', 'pear', 'banana' ]
     @props = [
       name  : 'carrot'
@@ -400,6 +401,12 @@ describe 'sort', ->
     assert.deepEqual \
       @nums.sort( (a, b) -> utils.sort a, b, desc: true),
       [ 9, 5, 3, 2 ]
+
+  it 'sorts nulls', ->
+    assert.deepEqual @numsNull.sort(utils.sort), [ null, null, 2, 3, 5, 9 ]
+    assert.deepEqual @numsNull.sort( (a, b) ->
+      utils.sort a, b, nullToEnd: true
+    ), [ 2, 3, 5, 9, null, null ]
 
   it 'sorts strings', ->
     assert.deepEqual @strs.sort(utils.sort),
