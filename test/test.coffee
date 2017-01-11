@@ -593,3 +593,76 @@ describe 'browser', ->
           _b[0] is browser
 
       assert !utils.browser other[0], undefined, ua for other in others
+
+describe 'platform', ->
+  platforms = [
+    [ 'linux', 'Linux i686' ]
+    [ 'win', 'Win32' ]
+    [ 'mac', 'MacIntel' ]
+    [ 'ios', 'iPad' ]
+  ]
+
+  platforms.forEach (p) ->
+    [ platform, navp ]  = p
+
+    it "#{platform} -> true", ->
+      assert utils.platform platform, navp
+
+    it "#{platform} -> false platforms", ->
+      others = _.reject platforms, (_p) ->
+        _p[0] is platform
+
+      assert !utils.platform other[0], navp for other in others
+
+describe 'isMobile', ->
+  mobiles = [
+    'Mozilla/5.0 (Linux; Android 6.0.1; SM-A310F Build/MMB29K)
+     AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.91 Mobile
+     Safari/537.36'
+    'Mozilla/5.0 (iPad; CPU OS 10_2_1 like Mac OS X) AppleWebKit/602.4.6
+     (KHTML, like Gecko) Version/10.0 Mobile/14D23 Safari/602.1'
+  ]
+
+  nonmobiles = [
+    'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like
+     Gecko) Chrome/53.0.2785.143 Safari/537.36'
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/601.7.8
+     (KHTML, like Gecko) Version/9.1.3 Safari/601.7.8'
+  ]
+
+  it 'detects mobile', ->
+    assert utils.isMobile mobile for mobile in mobiles
+
+  it 'detects non-mobile', ->
+    assert !utils.isMobile nonmobile for nonmobile in nonmobiles
+
+describe 'selectOptions', ->
+  samples = [
+    [
+      options: [ { descr: 'o1', value: 'v1' }, { descr: 'o2', value: 'v2' } ]
+      '<option value="v1">o1</option><option value="v2">o2</option>'
+    ],
+    [
+      optgroups: [
+        label: 'group1'
+        options: [ { value: 'g1v1' }, { value: 'g1v2' } ]
+      ,
+        label: 'group2'
+        options: [ { value: 'g2v1' }, { value: 'g2v2' } ]
+      ]
+      '<optgroup label="group1">' +
+        '<option value="g1v1">g1v1</option>' +
+        '<option value="g1v2">g1v2</option>' +
+      '</optgroup>' +
+      '<optgroup label="group2">' +
+        '<option value="g2v1">g2v1</option>' +
+        '<option value="g2v2">g2v2</option>' +
+      '</optgroup>'
+    ]
+  ]
+
+  samples.forEach (s) ->
+    [ input, output ] = s
+
+    it "generates #{_.keys input} html", ->
+      assert.equal utils.selectOptions(input), output

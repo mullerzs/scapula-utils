@@ -444,6 +444,40 @@ utils =
 
     ret
 
+  platform: (type, platform = navigator.platform || '') ->
+    ret = switch type?.toLowerCase()
+      when 'linux' then platform.match /^linux/i
+      when 'mac' then platform.match /^mac/i
+      when 'win' then platform.match /^win/i
+      when 'ios' then platform.match /(ipad|ipod|iphone)/i
+
+    ret
+
+  isMobile: (ua = navigator.userAgent || '') ->
+    ua.match /(mobi|android)/i
+
+  selectOptions: (opts = {}) ->
+    ret = ''
+
+    _buildOption = (_opt) =>
+      if _.isObject(_opt) && _opt.value?
+        value = @encodeHtml _opt.value
+        descr = if _opt.descr? then @encodeHtml _opt.descr else value
+        _ret = "<option value=\"#{value}\""
+        _ret += ' selected="selected"' if _opt.sel
+        _ret + ">#{descr}</option>"
+
+    if _.isArray opts.optgroups
+      for optgroup in opts.optgroups
+        if _.isObject(optgroup) && optgroup.label? &&
+            _.isArray(optgroup.options) && optgroup.options.length
+          ret += "<optgroup label=\"#{@encodeHtml optgroup.label}\">"
+          ret += _buildOption option for option in optgroup.options
+          ret += '</optgroup>'
+    else if _.isArray opts.options
+      ret += _buildOption option for option in opts.options
+
+    ret
 
 for fname, func of utils
   utils[fname] = func.bind utils if _.isFunction func
